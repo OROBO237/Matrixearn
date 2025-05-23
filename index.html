@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Matrix - Register & Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 500px;
+      margin-top: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+    input, button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #00c9ff;
+      color: white;
+      font-weight: bold;
+      transition: background-color 0.3s;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #92fe9d;
+      color: #222;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Matrix</h1>
+  <p>Earn ₦50 per task. Minimum withdrawal: ₦1000</p>
+
+  <div class="container" id="register">
+    <h2>Register</h2>
+    <input type="text" id="regName" placeholder="Full Name" />
+    <input type="text" id="regUser" placeholder="Username" />
+    <input type="password" id="regPass" placeholder="Password" />
+    <button onclick="register()">Register</button>
+  </div>
+
+  <div class="container" id="login">
+    <h2>Login</h2>
+    <input type="text" id="logUser" placeholder="Username" />
+    <input type="password" id="logPass" placeholder="Password" />
+    <button onclick="login()">Login</button>
+  </div>
+
+  <script>
+    let users = {};
+    let currentUser = "";
+    let withdrawals = [];
+    
+    function register() {
+      const name = document.getElementById('regName').value.trim();
+      const username = document.getElementById('regUser').value.trim();
+      const password = document.getElementById('regPass').value.trim();
+
+      if (!name || !username || !password) {
+        alert('Please fill all fields.');
+        return;
+      }
+
+      if (users[username]) {
+        alert('Username already exists!');
+        return;
+      }
+
+      users[username] = { name, password, balance: 0, completedTasks: [], withdrawals: [] };
+      alert('Registered! Now please login.');
+      // Clear inputs
+      document.getElementById('regName').value = '';
+      document.getElementById('regUser').value = '';
+      document.getElementById('regPass').value = '';
+    }
+
+    function login() {
+      const username = document.getElementById('logUser').value.trim();
+      const password = document.getElementById('logPass').value.trim();
+
+      if (username === 'admin' && password === 'admin123') {
+        alert('Admin logged in. Please go to admin panel.');
+        // Admin panel code not here, add if you want
+        return;
+      }
+
+      if (users[username] && users[username].password === password) {
+        currentUser = username;
+        alert('Login successful! Redirecting to Tasks page...');
+        window.location.href = 'tasks.html?user=' + encodeURIComponent(currentUser);
+      } else {
+        alert('Invalid login.');
+      }
+    }
+  </script>
+
+</body>
+</html>

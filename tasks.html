@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Matrix - Tasks</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 500px;
+      margin-top: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+    button, a.task-button {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: #00c9ff;
+      color: white;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+      transition: background-color 0.3s;
+    }
+    button:hover, a.task-button:hover {
+      background-color: #92fe9d;
+      color: #222;
+    }
+    .task {
+      background: white;
+      color: #2c5364;
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Matrix - Tasks</h1>
+  <p>Earn ₦50 per task. Minimum withdrawal: ₦1000</p>
+
+  <div class="container" id="taskContainer">
+    <h2>Today's Tasks</h2>
+    <div id="taskList"></div>
+    <button onclick="goToWithdraw()">Go to Withdraw</button>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <script>
+    // Get user from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentUser = urlParams.get('user');
+
+    if (!currentUser) {
+      alert('No user logged in, redirecting to login page.');
+      window.location.href = 'index.html';
+    }
+
+    // Dummy users storage (this won't persist)
+    let users = JSON.parse(localStorage.getItem('users')) || {};
+    if (!users[currentUser]) {
+      // If user not in storage, create a default user object
+      users[currentUser] = { balance: 0, completedTasks: [] };
+    }
+
+    // Telegram link task repeated 5 times
+    const tasks = Array(5).fill('Join Telegram Channel: https://t.me/OfficialPlusitz');
+
+    function showTasks() {
+      let taskHTML = '';
+      tasks.forEach((task, index) => {
+        const link = task.match(/https?:\/\/\S+/)[0];
+        const done = users[currentUser].completedTasks.includes(index);
+        taskHTML += `
+          <div class="task">
+            <a href="${link}" target="_blank" rel="noopener noreferrer" class="task-button">${task}</a><br>
+            <button onclick="completeTask(${index})" ${done ? 'disabled' : ''}>
+              ${done ? 'Completed' : 'Do Task +₦50'}
+            </button>
+          </div>
+        `;
+      });
+      document.getElementById('taskList').innerHTML = taskHTML;
+    }
+
+    function completeTask(index) {
+      if (!users[currentUser].completedTasks.includes(index)) {
+        users[currentUser].balance += 50;
+        users[currentUser].completedTasks.push(index);
+        localStorage.setItem('users', JSON.stringify(users));
+        showTasks();
+      }
+    }
+
+    function goToWithdraw() {
+      localStorage.setItem('users', JSON.stringify(users));
+      window.location.href = 'withdraw.html?user=' + encodeURIComponent(currentUser);
+    }
+
+    function logout() {
+      localStorage.setItem('users', JSON.stringify(users));
+      alert('Logged out');
+      window.location.href = 'index.html';
+    }
+
+    showTasks();
+  </script>
+
+</body>
+</html>
