@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="admin-login" class="container">
+    <h2>Admin Login</h2>
+    <input type="password" id="admin-password" placeholder="Enter admin password" />
+    <button onclick="loginAdmin()">Login</button>
+  </div>
+
+  <div id="admin-dashboard" class="container" style="display: none">
+    <h2>Welcome, Admin</h2>
+    <button onclick="logoutAdmin()">Logout</button>
+
+    <section>
+      <h3>Total Registered Users</h3>
+      <p id="user-count">Loading...</p>
+    </section>
+
+    <section>
+      <h3>Pending Withdrawals</h3>
+      <ul id="withdrawal-list"></ul>
+    </section>
+
+    <section>
+      <h3>Post New Task</h3>
+      <input type="text" id="task-title" placeholder="Task Title" />
+      <input type="url" id="task-link" placeholder="Task Link" />
+      <button onclick="postTask()">Add Task</button>
+    </section>
+
+    <section>
+      <h3>All Tasks</h3>
+      <ul id="task-list"></ul>
+    </section>
+  </div>
+
+  <script>
+    const adminPassword = "admin123";
+
+    function loginAdmin() {
+      const input = document.getElementById("admin-password").value;
+      if (input === adminPassword) {
+        document.getElementById("admin-login").style.display = "none";
+        document.getElementById("admin-dashboard").style.display = "block";
+        loadDashboard();
+      } else {
+        alert("Incorrect password.");
+      }
+    }
+
+    function logoutAdmin() {
+      document.getElementById("admin-dashboard").style.display = "none";
+      document.getElementById("admin-login").style.display = "block";
+    }
+
+    function loadDashboard() {
+      // Load user count
+      const users = JSON.parse(localStorage.getItem("users")) || [];
+      document.getElementById("user-count").textContent = users.length;
+
+      // Load withdrawals
+      const withdrawals = JSON.parse(localStorage.getItem("withdrawals")) || [];
+      const withdrawalList = document.getElementById("withdrawal-list");
+      withdrawalList.innerHTML = "";
+      withdrawals.forEach((withdrawal, index) => {
+        const li = document.createElement("li");
+        li.textContent = `${withdrawal.name} - ₦${withdrawal.amount}`;
+        const btn = document.createElement("button");
+        btn.textContent = "Mark as Paid";
+        btn.onclick = () => {
+          withdrawals.splice(index, 1);
+          localStorage.setItem("withdrawals", JSON.stringify(withdrawals));
+          loadDashboard();
+        };
+        li.appendChild(btn);
+        withdrawalList.appendChild(li);
+      });
+
+      // Load tasks
+      const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      const taskList = document.getElementById("task-list");
+      taskList.innerHTML = "";
+      tasks.forEach(task => {
+        const li = document.createElement("li");
+        li.innerHTML = `<a href="${task.link}" target="_blank">${task.title}</a>`;
+        taskList.appendChild(li);
+      });
+    }
+
+    function postTask() {
+      const title = document.getElementById("task-title").value;
+      const link = document.getElementById("task-link").value;
+      if (title && link) {
+        const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+        tasks.push({ title, link });
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        document.getElementById("task-title").value = "";
+        document.getElementById("task-link").value = "";
+        loadDashboard();
+      } else {
+        alert("Please fill out both fields.");
+      }
+    }
+  </script>
+</body>
+</html>
